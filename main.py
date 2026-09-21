@@ -24,14 +24,22 @@ class DadosNecessarios(BaseModel):
             raise ValueError("Nome inválido")
 
         return nome
+#Define os dados necessários do produto.
 
 class Produto(BaseModel):
     id: int
     nome: str
     preco: float = Field(ge=0)
     ativo: bool = True
-# Define a estrutura e as regras de validação dos produtos.
+# Define a estrutura e as regras de validação dos produtos, além de definir o ID do produto e deixá-lo ativo.
 # Field(ge=0) define o preço como número decimal e impede valores menores que 0.
+
+class Respostas(BaseModel):
+    erro: int
+    codigo: int | None = None
+    mensagem: str
+    data: Produto | list[Produto] | None
+
 
 produtos = []
 # Lista utilizada para armazenar os produtos em memória durante a execução da API.
@@ -55,7 +63,7 @@ def listar_produto(id: int):
     raise HTTPException(status_code=404)
 # Endpoint criado para buscar um produto específico pelo ID.
 
-@app.post("/produtos", status_code=201)
+@app.post("/produtos", status_code=201, response_model = Respostas)
 def postar_produto(produto: DadosNecessarios):
     maior_id = 0
     for produto_existente in produtos:
@@ -71,7 +79,11 @@ def postar_produto(produto: DadosNecessarios):
     )
 
     produtos.append(novo_produto)
-    return novo_produto
+    return Respostas(
+        erro = 0,
+        mensagem= "Produto Cadastrado com sucesso",
+        data = [novo_produto]
+    )
 # Endpoint criado para postar um produto
 
 @app.put("/produtos/{id}") 
