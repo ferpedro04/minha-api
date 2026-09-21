@@ -8,6 +8,10 @@ from pydantic import BaseModel, Field, field_validator
 # BaseModel -> Classe base utilizada para criar modelos de dados e realizar validações.
 # Field -> Função utilizada para definir regras e configurações específicas dos campos do modelo.
 
+from fastapi.responses import JSONResponse
+
+from fastapi.exceptions import RequestValidationError
+
 app = FastAPI()
 # Cria a aplicação FastAPI
 
@@ -44,6 +48,30 @@ class Respostas(BaseModel):
 produtos = []
 # Lista utilizada para armazenar os produtos em memória durante a execução da API.
 
+@app.exception_handler(RequestValidationError)
+async def tratar_erro_validacao(request, exc):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "erro": 1,
+            "codigo": 422,
+            "mensagem": "Nome e/ou preço inválido(s)",
+            "data": None
+        }
+    )
+
+@app.exception_handler(Exception)
+async def tratar_erro_interno(request, exc):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "erro": 1,
+            "codigo": 500,
+            "mensagem": "Erro interno",
+            "data": None
+        }
+    )
+
 @app.get("/produtos")
 def listar_produtos(ativo: bool = None):
     if ativo is None:
@@ -60,7 +88,15 @@ def listar_produto(id: int):
     for produto in produtos:
         if id == produto.id:
             return produto
-    raise HTTPException(status_code=404)
+    return JSONResponse(
+    status_code=404,
+    content={
+        "erro": 1,
+        "codigo": 404,
+        "mensagem": "Produto não encontrado no sistema ou já excluído",
+        "data": None
+    }
+)
 # Endpoint criado para buscar um produto específico pelo ID.
 
 @app.post("/produtos", status_code=201, response_model = Respostas)
