@@ -140,8 +140,20 @@ def editar_produto(id: int, produto: Produto):
         if id == produto_existente.id:
             produto.id = id
             produtos[indice] = produto
-            return produto
-    raise HTTPException(status_code=404)
+            return Respostas(
+                erro= 0,
+                mensagem = "Produto atualizado com sucesso",
+                data = [produto]
+            )
+    return JSONResponse(
+        status_code=404,
+        content={
+            "erro": 1,
+            "codigo": 404,
+            "mensagem": "Produto não localizado",
+            "data": None
+        }
+)
 # Endpoint criado para editar um produto
 
 @app.delete("/produtos/{id}")
