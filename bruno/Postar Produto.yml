@@ -10,10 +10,8 @@ http:
     type: json
     data: |-
       {
-        "id": (numero),
-        "nome": "(nome)",
-        "preco": (valor),
-        "ativo": (true ou false)
+        "nome": "nome",
+        "preco":
       }
   auth: inherit
 

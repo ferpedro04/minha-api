@@ -72,28 +72,40 @@ async def tratar_erro_interno(request, exc):
         }
     )
 
-@app.get("/produtos")
-def listar_produtos(ativo: bool = None):
-    if ativo is None:
-        return(produtos)
-    produtos_ativos = []
+@app.get("/produtos", response_model=Respostas)
+def listar_produtos(ativo: bool = None, preco: float = None):
+    if (ativo is None) and (preco is None):
+        return Respostas(
+            erro=0,
+            mensagem="Produtos listados com sucesso",
+            data=produtos
+        )
+    produtos_filtrados = []
     for produto in produtos:
-        if produto.ativo == ativo:
-            produtos_ativos.append(produto)
-    return(produtos_ativos)
+        if (ativo is None or produto.ativo == ativo) and (preco is None or produto.preco >= preco):
+            produtos_filtrados.append(produto)
+    return Respostas(
+        erro=0,
+        mensagem="Produtos filtrados com sucesso",
+        data=produtos_filtrados
+    )
 # Endpoint responsável por listar e filtrar produtos pelo status ativo.
 
 @app.get("/produtos/{id}") 
-def listar_produto(id: int):
+def listar_produto(id: int, preco: float = None):
     for produto in produtos:
-        if id == produto.id:
-            return produto
+        if (id == produto.id) and (preco is None or produto.preco >= preco):
+            return Respostas(
+                erro= 0,
+                mensagem= "Produto localizado com sucesso",
+                data= [produto]
+            )
     return JSONResponse(
     status_code=404,
     content={
         "erro": 1,
         "codigo": 404,
-        "mensagem": "Produto não encontrado no sistema ou já excluído",
+        "mensagem": "Produto não localizado",
         "data": None
     }
 )
