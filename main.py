@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 # FastAPI -> Classe utilizada para criar e configurar a aplicação.
 # HTTPException -> Exceção utilizada para retornar erros HTTP.
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 # pydantic -> Biblioteca utilizada para validação e estruturação de dados.
 # BaseModel -> Classe base utilizada para criar modelos de dados e realizar validações.
 # Field -> Função utilizada para definir regras e configurações específicas dos campos do modelo.
@@ -11,11 +11,25 @@ from pydantic import BaseModel, Field
 app = FastAPI()
 # Cria a aplicação FastAPI
 
+class DadosNecessarios(BaseModel):
+    nome: str
+    preco: float = Field(ge=0)
+
+    @field_validator("nome")
+    @classmethod
+    def validar_nome(cls, nome):
+        nome = nome.strip()
+
+        if nome == "":
+            raise ValueError("Nome inválido")
+
+        return nome
+
 class Produto(BaseModel):
     id: int
     nome: str
     preco: float = Field(ge=0)
-    ativo: bool
+    ativo: bool = True
 # Define a estrutura e as regras de validação dos produtos.
 # Field(ge=0) define o preço como número decimal e impede valores menores que 0.
 
@@ -42,9 +56,22 @@ def listar_produto(id: int):
 # Endpoint criado para buscar um produto específico pelo ID.
 
 @app.post("/produtos", status_code=201)
-def postar_produto(produto: Produto):
-    produtos.append(produto)
-    return(produto)
+def postar_produto(produto: DadosNecessarios):
+    maior_id = 0
+    for produto_existente in produtos:
+        if produto_existente.id > maior_id:
+            maior_id = produto_existente.id
+
+    proximo_id = maior_id + 1
+
+    novo_produto = Produto(
+        id=proximo_id,
+        nome=produto.nome,
+        preco=produto.preco
+    )
+
+    produtos.append(novo_produto)
+    return novo_produto
 # Endpoint criado para postar um produto
 
 @app.put("/produtos/{id}") 
