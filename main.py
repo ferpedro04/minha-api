@@ -58,7 +58,7 @@ class Produto(BaseModel):
 
 class Respostas(BaseModel):
     erro: int
-    codigo: int | None = None
+    codigo: int 
     mensagem: str
     data: Produto | list[Produto] | None
 # Modelo responsável por padronizar as respostas da API.
@@ -103,6 +103,7 @@ def listar_produtos(ativo: bool = None, preco: float = None):
     if (ativo is None) and (preco is None):
         return Respostas(
             erro=0,
+            codigo= 200,
             mensagem="Produtos listados com sucesso",
             data=produtos
         )
@@ -112,6 +113,7 @@ def listar_produtos(ativo: bool = None, preco: float = None):
             produtos_filtrados.append(produto)
     return Respostas(
         erro=0,
+        codigo= 200,
         mensagem="Produtos filtrados com sucesso",
         data=produtos_filtrados
     )
@@ -125,6 +127,7 @@ def listar_produto(id: int, preco: float = None):
         if (id == produto.id) and (preco is None or produto.preco >= preco):
             return Respostas(
                 erro= 0,
+                codigo= 200,
                 mensagem= "Produto localizado com sucesso",
                 data= produto
             )
@@ -159,6 +162,7 @@ def postar_produto(produto: DadosNecessarios):
     produtos.append(novo_produto)
     return Respostas(
         erro = 0,
+        codigo= 201,
         mensagem= "Produto Cadastrado com sucesso",
         data = [novo_produto]
     )
@@ -179,6 +183,7 @@ def editar_produto(id: int, produto: DadosAtualizacao):
             produtos[indice] = produto_atualizado
             return Respostas(
                 erro= 0,
+                codigo= 200,
                 mensagem = "Produto atualizado com sucesso",
                 data = produto_atualizado
             )
@@ -202,6 +207,7 @@ def deletar_produto(id: int):
             produtos.remove(produto)
             return Respostas(
                 erro= 0,
+                codigo= 200,
                 mensagem= "Produto removido com sucesso.",
                 data= produto
 )
