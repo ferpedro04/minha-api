@@ -1,7 +1,7 @@
 info:
   name: Postar Produto
   type: http
-  seq: 5
+  seq: 6
 
 http:
   method: POST
@@ -10,8 +10,8 @@ http:
     type: json
     data: |-
       {
-        "nome": "Amoxicilina",
-        "preco": 17.00
+        "nome": "nome",
+        "preco": (valor)
       }
   auth: inherit
 
