@@ -16,6 +16,14 @@ from fastapi.exceptions import RequestValidationError
 app = FastAPI()
 # Cria a aplicação FastAPI que será responsável por disponibilizar os endpoints da nossa API.
 
+def validar_nome_produto(nome):
+    nome = nome.strip()
+
+    if nome == "":
+        raise ValueError("Nome inválido")
+
+    return nome
+
 class DadosNecessarios(BaseModel):
     nome: str
     preco: float = Field(ge=0)
@@ -23,12 +31,7 @@ class DadosNecessarios(BaseModel):
     @field_validator("nome")
     @classmethod
     def validar_nome(cls, nome):
-        nome = nome.strip()
-
-        if nome == "":
-            raise ValueError("Nome inválido")
-
-        return nome
+        return validar_nome_produto(nome)
 # Modelo utilizado para definir os dados obrigatórios no cadastro de um produto.
 # O nome e o preço são necessários para criar um novo produto.
 
@@ -36,8 +39,12 @@ class DadosAtualizacao(BaseModel):
     nome: str
     preco: float = Field(ge=0)
     ativo: bool = True
-# Modelo utilizado para receber os dados enviados durante a atualização
-# de um produto. O ID não é necessário, pois ele é informado pela URL.
+
+    @field_validator("nome")
+    @classmethod
+    def validar_nome(cls, nome):
+        return validar_nome_produto(nome)
+# Modelo utilizado para receber os dados enviados durante a atualização de um produto. O ID não é necessário, pois ele é informado pela URL.
 # O campo ativo pode ser alterado durante a atualização.
 
 class Produto(BaseModel):
@@ -70,7 +77,7 @@ async def tratar_erro_validacao(request, exc):
         content={
             "erro": 1,
             "codigo": 422,
-            "mensagem": "Nome e/ou preço inválido(s)",
+            "mensagem": "Dados inválidos.",
             "data": None
         }
     )
