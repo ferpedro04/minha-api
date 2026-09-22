@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 # fastapi -> Framework utilizado para criação da API.
 # FastAPI -> Classe utilizada para criar e configurar a aplicação.
 
@@ -119,14 +119,14 @@ def listar_produtos(ativo: bool = None, preco: float = None):
 # Permite filtrar os resultados pelo status ativo e pelo preço mínimo.
 # Quando os filtros não são informados, todos os produtos são retornados.
 
-@app.get("/produtos/{id},", response_model= Respostas) 
+@app.get("/produtos/{id}", response_model= Respostas) 
 def listar_produto(id: int, preco: float = None):
     for produto in produtos:
         if (id == produto.id) and (preco is None or produto.preco >= preco):
             return Respostas(
                 erro= 0,
                 mensagem= "Produto localizado com sucesso",
-                data= [produto]
+                data= produto
             )
     return JSONResponse(
     status_code=404,
