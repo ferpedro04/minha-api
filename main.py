@@ -161,6 +161,18 @@ def deletar_produto(id: int):
     for produto in produtos:
         if id == produto.id:
             produtos.remove(produto)
-            return("Produto removido com sucesso. Pode encerrar a função")
-    raise HTTPException(status_code=404)
+            return Respostas(
+                erro= 0,
+                mensagem= "Produto removido com sucesso.",
+                data= produto
+)
+    return JSONResponse(
+            status_code=404,
+            content={
+                "erro": 1,
+                "codigo": 404,
+                "mensagem": "Produto não cadastrado ou já excluído.",
+                "data": None
+            }
+)
 # Endpoint criado para deletar um produto
